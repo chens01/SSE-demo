@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSE Client</title>
+    <style type="text/css">
+        .count-container {
+            display: flex;
+            margin: 60px;
+        }
+        
+        .count-container > div {
+            position: relative;
+        }
+
+        .count-container > div:not(:first-child) {
+            margin-left: 10px;
+        }
+
+        .point {
+            display: none;
+            position: absolute;
+            left: 20px;
+            top:-5px;
+            border-radius: 50%;
+            background-color: #ff0000;
+            width:15px;
+            height:15px;
+            color:#fff;
+            text-align: center;
+            line-height: 15px;
+            font-size: 12px;
+        }
+    </style>
+  </head>
+  <body>
+    <div class="count-container">
+        <div>
+            <img src="./images/message.png" width="30px" />
+            <span id="message" class="point"></span>
+        </div>
+        <div>
+            <img src="./images/like.png" width="30px" />
+            <span id="like" class="point"></span>
+        </div>
+        <div>
+            <img src="./images/collect.png" width="30px" />
+            <span id="collect" class="point"></span>
+        </div>
+    </div>
+
+	<script type="text/javascript">
+        if (window.EventSource) {
+            const eventSource = new EventSource("http://127.0.0.1:3001");
+        
+            eventSource.onopen = function(event) {
+                console.log('SSE open');
+            };
+
+            eventSource.onerror = function(err) {
+                console.log('error', err);
+            }
+            
+            const MessagePoint = document.getElementById('message');
+            eventSource.addEventListener(
+                'MessageCount',
+                function (event) {
+                    const data = JSON.parse(event.data);
+                    console.log(data);
+                    MessagePoint.style.display = 'block';
+                    MessagePoint.innerText = data.count;
+                }, 
+                false
+            );
+
+            const LikePoint = document.getElementById('like');
+            eventSource.addEventListener(
+                'LikeCount',
+                function (event) {
+                    const data = JSON.parse(event.data);
+                    LikePoint.style.display = 'block';
+                    LikePoint.innerText = data.count;
+                }, 
+                false
+            );
+
+            const CollectPoint = document.getElementById('collect');
+            eventSource.addEventListener(
+                'CollectCount',
+                function (event) {
+                    const data = JSON.parse(event.data);
+                    CollectPoint.style.display = 'block';
+                    CollectPoint.innerText = data.count;
+                }, 
+                false
+            );
+        }
+    </script>
+  </body>
+</html>
